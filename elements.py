@@ -2509,9 +2509,14 @@ class ElementEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, Element):
           rv = obj.__dict__.copy()
-          isotopes_dict = rv["isotopes"]
-          rv["isotopes"] = isotopes_dict.values()
-          rv["description"] = _descriptions(obj.symbol)
+          isotopes_dict = rv['isotopes']
+          rv['isotopes'] = isotopes_dict.values()
+          rv['description'] = _descriptions(obj.symbol)
+          rv["suggest"] = {
+            'input': [rv['name'], rv['symbol']],
+            'output': [rv['name']]
+          }
+
           return rv
         elif isinstance(obj, Isotope):
           return obj.to_dict()
@@ -2533,11 +2538,11 @@ if __name__ == "__main__":
         "properties" : {
           "symbol" : {
             "type" : "string",
-            "index" : "not_analyzed"
+            "analyzer" : "simple"
           },
           "name" : {
             "type" : "string",
-            "index" : "analyzed"
+            "analyzer" : "simple"
           },
           "series" : {
             "type" : "integer",
@@ -2617,20 +2622,10 @@ if __name__ == "__main__":
           },
           "isotopes" : {
             "type" : "object",
-            "properties" : {
-              "massnumber" : {
-                "type" : "integer",
-                "index" : "no"
-              },
-              "mass" : {
-                "type" : "float",
-                "index" : "no"
-              },
-              "abundance" : {
-                "type" : "float",
-                "index" : "no"
-              }
-            }
+            "enabled" : false
+          },
+          "suggest" : {
+            "type" : "completion"
           }
         }
       }
